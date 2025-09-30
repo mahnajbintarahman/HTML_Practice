@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Class Routine Scheduler</title>
+  <!-- Bootstrap CSS CDN -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+  <style>
+    body {
+      background-color: #f0f4f8;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    header {
+      background-color: #0d6efd;
+      color: white;
+      padding: 1.5rem 0;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .routine-table th,
+    .routine-table td {
+      vertical-align: middle;
+      text-align: center;
+    }
+    .form-section {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgb(0 0 0 / 0.1);
+      margin-bottom: 2rem;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Class Routine Scheduler</h1>
+  <p>Set your class times and days easily</p>
+</header>
+
+<div class="container">
+
+  <div class="form-section">
+    <h4>Add a Class</h4>
+    <form id="classForm" class="row g-3 align-items-center">
+      <div class="col-md-4">
+        <label for="className" class="form-label">Class Name</label>
+        <input type="text" class="form-control" id="className" placeholder="e.g. Math" required />
+      </div>
+      <div class="col-md-2">
+        <label for="classDay" class="form-label">Day</label>
+        <select id="classDay" class="form-select" required>
+          <option value="" disabled selected>Select Day</option>
+          <option>Monday</option>
+          <option>Tuesday</option>
+          <option>Wednesday</option>
+          <option>Thursday</option>
+          <option>Friday</option>
+          <option>Saturday</option>
+          <option>Sunday</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label for="startTime" class="form-label">Start Time</label>
+        <input type="time" class="form-control" id="startTime" required />
+      </div>
+      <div class="col-md-2">
+        <label for="endTime" class="form-label">End Time</label>
+        <input type="time" class="form-control" id="endTime" required />
+      </div>
+      <div class="col-md-2 d-flex align-items-end">
+        <button type="submit" class="btn btn-primary w-100">Add Class</button>
+      </div>
+    </form>
+  </div>
+
+  <h4>Your Weekly Routine</h4>
+  <div class="table-responsive">
+    <table class="table table-bordered routine-table">
+      <thead class="table-primary">
+        <tr>
+          <th>Day</th>
+          <th>Classes</th>
+        </tr>
+      </thead>
+      <tbody id="routineBody">
+        <!-- Routine rows will be added here dynamically -->
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- Bootstrap JS Bundle CDN -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  const classForm = document.getElementById('classForm');
+  const routineBody = document.getElementById('routineBody');
+
+  // Data structure to hold classes by day
+  const routine = {
+    Monday: [],
+    Tuesday: [],
+    Wednesday: [],
+    Thursday: [],
+    Friday: [],
+    Saturday: [],
+    Sunday: []
+  };
+
+  // Function to render the routine table
+  function renderRoutine() {
+    routineBody.innerHTML = ''; // Clear existing rows
+
+    for (const day in routine) {
+      let classes = routine[day];
+
+      // Sort classes by start time
+      classes.sort((a, b) => a.startTime.localeCompare(b.startTime));
+
+      let classListHtml = '';
+      if (classes.length === 0) {
+        classListHtml = '<em>No classes</em>';
+      } else {
+        classListHtml = '<ul class="list-unstyled mb-0">';
+        classes.forEach(cls => {
+          classListHtml += `<li><strong>${cls.className}</strong>: ${cls.startTime} - ${cls.endTime}</li>`;
+        });
+        classListHtml += '</ul>';
+      }
+
+      const row = `
+        <tr>
+          <td><strong>${day}</strong></td>
+          <td>${classListHtml}</td>
+        </tr>
+      `;
+      routineBody.insertAdjacentHTML('beforeend', row);
+    }
+  }
+
+  // Handle form submission
+  classForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const className = document.getElementById('className').value.trim();
+    const classDay = document.getElementById('classDay').value;
+    const startTime = document.getElementById('startTime').value;
+    const endTime = document.getElementById('endTime').value;
+
+    if (!className || !classDay || !startTime || !endTime) {
+      alert('Please fill in all fields.');
+      return;
+    }
+
+    if (startTime >= endTime) {
+      alert('End time must be after start time.');
+      return;
+    }
+
+    // Add class to routine
+    routine[classDay].push({ className, startTime, endTime });
+
+    // Clear form
+    classForm.reset();
+
+    // Re-render routine
+    renderRoutine();
+  });
+
+  // Initial render
+  renderRoutine();
+</script>
+
+</body>
+</html>
